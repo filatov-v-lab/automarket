@@ -1,0 +1,41 @@
+<nav class="navbar navbar-expand-lg bg-white">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">АвтоМаркет</a>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" aria-current="page" href="/">Магазин</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/about/' %}active{% endif %} " href="/about/">О нас</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/help/' %}active{% endif %} " href="/help/">Помощь</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item me-3">
+                    <a class="nav-link ps-4 cart-lnk {% if request.path == '/cart/' %}active{% endif %} " href="/cart/">Корзина</a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <button class="nav-link ps-4 profile-dropdown dropdown-toggle custom-icon text-start text-md-center" role="button" data-bs-toggle="dropdown" aria-expanded="false">Профиль</button>
+                    <ul class="dropdown-menu end-0" style="left: auto;">
+                        <li><a class="dropdown-item" href="/profile/">Личные данные</a></li>
+                        <li><a class="dropdown-item" href="/orders/">История заказов</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout-store/">Выход</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/login-store' %}active{% endif %} " href="/login-store/">Войти</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

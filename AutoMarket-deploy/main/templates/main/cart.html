@@ -1,0 +1,95 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% load main_tags %}
+{% block title %}АвтоМаркет - Корзина{% endblock %}
+{% block content %}
+<div class="flex-grow-1 col-12 col-md-9 col-xl-7 bg-white align-self-center rounded-3 p-3">
+    <div class="d-flex col-12 col-md-8 flex-column mx-auto">
+        <h3 class="my-3">Корзина<button type="button" class="btn btn-link text-decoration-none fs-6" onclick="clearCart()">Очистить</button></h3>
+        {% if user.is_authenticated %}
+            <form action="/order/create/" id="orderForm" method="post" class="w-100" onsubmit="clearCart()">
+            {% csrf_token %}
+            <div id="cart-block" class="mb-3">Здесь будут Ваши покупки.</div>
+                <div class="mb-3">
+                    <div class="fw-semibold col-12 col-md-6 mb-2">Выберите адрес:</div>
+                    {% for address in user.address_set.all %}
+                        <div class="mb-3 form-check">
+                            <input type="radio" id="address{{ address.pk }}" name="address" class="form-check-input" value="{{ address.pk }}" required>
+                            <label class="form-check-label" for="address{{ address.pk }}">г. {{ address.city }}, {{ address.street }}, {{ address.house }}{% if address.entrance %}, {{ address.entrance }}{% endif %}{% if address.comment %}, {{ address.comment }}{% endif %}</label>
+                        </div>
+                    {% endfor %}
+                    <button style="--bs-btn-border-color: #dee2e6;" class="btn btn-outline-dark w-100" data-bs-toggle="modal" data-bs-target="#createAddressModal" type="button">Добавить адрес</button>
+                </div>
+                {% if user.address_set.count > 0 %}
+                    <div class="customer-data d-none">
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Телефон получателя:</label>
+                            <input id="phone" name="phone" type="text" class="form-control" placeholder="+7(999)-999-99-99" required />
+                        </div>
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label for="comment" class="form-label">Комментарий к заказу:</label>
+                            <textarea id="comment" name="comment" class="form-control" placeholder="Сообщите важную для нас информацию"></textarea>
+                        </div>
+                        <div class="mb-5">
+                            <button type="submit" class="btn btn-warning py-3 w-100 fw-semibold" >ЗАКАЗАТЬ</button>
+                        </div>
+                    </div>
+                {% endif %}
+            </form>
+            {% include 'main/create_address.html' %}
+        {% else %}
+            <h5>Что бы оформить заказ, нужно <a href="/login-store">авторизоваться</a>.</h5>
+        {% endif %}
+    <script>
+        drawCart()
+        function drawCart() {
+            const cartBlock = document.querySelector('#cart-block')
+            let totalPrice = 0
+            if (cartBlock) {
+                const cart = storageGetItem('cart')
+                if (cart?.length !== 0) {
+                    cartBlock.innerHTML = ''
+                    cart?.forEach(product=>{
+                        cartBlock.insertAdjacentHTML('beforeend', `
+                            <div class="d-flex border-bottom mt-2">
+                                <div class=""><img class="object-fit-cover m-2 rounded-3" src="/static/main/imgs/${product.imageName}" alt="${product.fields.name}" style="width: 90px; height: 90px; filter: brightness(0.8);"></div>
+                                <div class="flex-grow-1">
+                                    <div class=""><a class="text-decoration-none p-0" href="/product/${product.pk}/">${product.fields.name}</a></div>
+                                    <div class="">Количество: <input type="number" name="product${product.pk}" class="form-control form-control-cart-product d-inline-block border-0 shadow-none fw-semibold" style="width: 3.5rem;" value="${product.quantity}" min="1" max="${product.fields.quantity_value}"> ${product.fields.quantity_units}</div>
+                                    <div class="">Цена: ${numberWithSpaces(product.fields.price)} ₽</div>
+                                    <div class="text-end"><button class="btn btn-link text-decoration-none p-0 text-danger remove-from-cart-btn-${product.pk}" type="button">Удалить</button></div>
+                                </div>
+                            </div>
+                        `)
+                        totalPrice += parseFloat(product.fields.price) * product.quantity
+                        document.querySelectorAll(`.remove-from-cart-btn-${product.pk}`).forEach(el=>el.addEventListener('click', ()=>{
+                            removeFromCart(product.pk)
+                            window.location.reload()
+                        }))
+                    })
+                    cartBlock.insertAdjacentHTML('beforeend', `<div class="fs-5 pt-3 text-end">Итого: <span class="fw-semibold">${numberWithSpaces(totalPrice)}.00 ₽</span></div>`)
+                    document.querySelector('.customer-data')?.classList.remove('d-none')
+                    document.querySelectorAll('img').forEach(el=>el.addEventListener('error', ()=>{
+                        el.src = "/static/main/def_imgs/error.jpg"
+                    }))
+                    document.querySelectorAll('.form-control-cart-product').forEach(e=>e.addEventListener('input', (ev)=>{
+                        const newValue = parseInt(ev.target.value)
+                        const productPk = parseInt(ev.target.name.replace('product', ''))
+                        storageSetItem('cart', storageGetItem('cart').map(p=>{
+                            if (p.pk === productPk) {
+                                return {...p, quantity: newValue}
+                            }
+                            return p
+                        }))
+                        drawCart()
+                    }))
+                }
+                function numberWithSpaces(x) {
+                  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+                }
+            }
+        }
+    </script>
+    </div>
+</div>
+{% endblock %}
