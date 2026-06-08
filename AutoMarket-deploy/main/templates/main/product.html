@@ -45,7 +45,13 @@
             </div>
             <div class="border-start ps-3 pb-3 mb-3">
                 <div class="text-body-secondary">В наличии</div>
-                <div class="">{{ product.quantity_value }} {{ product.quantity_units }}</div>
+                <div>
+                    {% if product.quantity_value %}
+                        {{ product.quantity_value }} {{ product.quantity_units|default:"шт." }}
+                    {% else %}
+                        Нет в наличии
+                    {% endif %}
+                </div>
             </div>
             <div class="mb-2 d-flex nowrap justify-content-between">
                 <button class="btn btn-warning cart-btn d-block col-4 rounded-5 rounded-end-0 py-3 fs-5 bg-minus-ico" type="button" data-related-price-block="price-{{ product.pk }}" data-action="subtraction"></button>
