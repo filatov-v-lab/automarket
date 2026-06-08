@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>АвтоМаркет — Товар</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div class="d-flex flex-column content-wrapper">
+  <div class="flex-grow-1 d-flex flex-column">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white menu-block position-sticky top-0 z-3 shadow-sm">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">АвтоМаркет</a>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="index.html">Магазин</a></li>
+            <li class="nav-item"><a class="nav-link" href="about.html">О нас</a></li>
+            <li class="nav-item"><a class="nav-link" href="help.html">Помощь</a></li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item me-3 position-relative">
+              <a class="nav-link cart-lnk" href="cart.html"><i class="bi bi-cart3"></i> Корзина
+                <span class="cart-badge" id="cart-badge" style="display:none"></span>
+              </a>
+            </li>
+            <li id="nav-auth"></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="main-content p-3 px-xl-3 flex-grow-1 d-flex flex-column align-items-center" id="productWrap">
+      <div class="text-center py-5 text-body-secondary"><i class="bi bi-arrow-clockwise fs-1"></i><p>Загрузка…</p></div>
+    </div>
+  </div>
+
+  <footer class="footer-block mt-5 p-3 d-flex flex-column flex-xl-row justify-content-around text-body-secondary">
+    <div class="col-12 col-xl-3"><h5>О нас</h5><p>Интернет-магазин автозапчастей.</p></div>
+    <div class="col-12 col-xl-3"><h5>Поддержка</h5><p>Звоните: <a href="tel:+79999999999" class="text-decoration-none text-black fw-semibold">+7(999)-999-99-99</a></p></div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="data.js"></script>
+<script>
+const pk = +new URLSearchParams(location.search).get('id');
+const product = PRODUCTS.find(p => p.pk === pk);
+
+if (!product) {
+  document.getElementById('productWrap').innerHTML = `<div class="text-center py-5"><h3>Товар не найден</h3><a href="index.html" class="btn btn-primary mt-3">В магазин</a></div>`;
+} else {
+  document.title = `АвтоМаркет — ${product.name}`;
+
+  const recs = PRODUCTS.filter(p => p.cat === product.cat && p.pk !== product.pk).slice(0, 6);
+
+  let propsHtml = '';
+  if (product.props.length) {
+    propsHtml = `<div class="mt-3 p-3"><h4>Характеристики</h4>
+      <table class="table table-hover"><tbody>` +
+      product.props.map(([k,v]) => `<tr><td style="width:220px">${k}</td><td>${v}</td></tr>`).join('') +
+      `</tbody></table></div>`;
+  }
+
+  let recsHtml = recs.length ? `<div class="mt-3 p-3"><h4 class="mb-3">Похожие товары</h4>
+    <div class="d-flex flex-wrap" style="gap:1rem">` +
+    recs.map(p => `<div class="card border-0 product-card" style="width:230px">
+      <div class="p-1 pb-0 product-card-img-wrapper rounded-top-3">
+        <a href="product.html?id=${p.pk}"><img src="${p.img}" class="product-card-img d-block mx-auto" alt="" onerror="this.src='https://placehold.co/230x160/eee/aaa?text=Нет+фото'"></a>
+      </div>
+      <div class="card-body"><h6><a href="product.html?id=${p.pk}" class="text-decoration-none text-dark">${p.name}</a></h6>
+        <p class="small text-body-secondary">В наличии ${p.qty} ${p.units}</p>
+        <p class="small">${p.price.toLocaleString('ru-RU')} ₽</p>
+      </div></div>`).join('') +
+    `</div></div>` : '';
+
+  const cartItem = Cart.get().find(i => i.pk === product.pk);
+  const curQty = cartItem ? cartItem.qty : 0;
+
+  document.getElementById('productWrap').innerHTML = `
+  <div class="col-12 col-md-9 col-xl-7 bg-white rounded-3 p-3 fade-block">
+    <div class="d-flex flex-column flex-md-row">
+      <div class="flex-grow-1 p-3">
+        <div style="height:280px" class="d-flex align-items-center justify-content-center bg-light rounded-3">
+          <img src="${product.img}" alt="${product.name}" style="max-height:260px;max-width:100%;object-fit:contain" onerror="this.src='https://placehold.co/320x260/eee/aaa?text=Нет+фото'">
+        </div>
+      </div>
+      <div class="col-12 col-md-6 p-3 d-flex flex-column">
+        <h2 class="mb-3">${product.name}</h2>
+        <div class="border-start ps-3 pb-3"><div class="text-body-secondary">Производитель</div><div class="fs-5">${product.maker}</div></div>
+        <div class="border-start ps-3 pb-3"><div class="text-body-secondary">Описание</div><div>${product.desc}</div></div>
+        <div class="border-start ps-3 pb-3 mb-3"><div class="text-body-secondary">В наличии</div><div>${product.qty} ${product.units}</div></div>
+        <div class="d-flex mb-2">
+          <button class="btn btn-warning col-4 rounded-5 rounded-end-0 py-3 fs-5" id="btnMinus" onclick="adjustQty(-1)"><i class="bi bi-dash-lg"></i></button>
+          <div class="btn btn-warning col-4 rounded-0 py-3 fs-5 text-center" style="pointer-events:none">
+            ${product.price.toLocaleString('ru-RU')} ₽ <span class="fw-semibold" id="qtyLabel">${curQty > 0 ? 'x'+curQty : ''}</span>
+          </div>
+          <button class="btn btn-warning col-4 rounded-5 rounded-start-0 py-3 fs-5" id="btnPlus" onclick="adjustQty(1)"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        <a href="cart.html" class="btn btn-outline-warning w-100 ${curQty>0?'':'d-none'}" id="goCartBtn">Перейти в корзину →</a>
+      </div>
+    </div>
+    ${propsHtml}
+    ${recsHtml}
+  </div>`;
+
+  updateCartBadge();
+}
+
+function adjustQty(delta) {
+  const item = Cart.get().find(i => i.pk === product.pk);
+  const cur = item ? item.qty : 0;
+  const next = cur + delta;
+  if (next <= 0) Cart.remove(product.pk);
+  else if (next <= product.qty) {
+    if (cur === 0) Cart.add(product.pk, next); else Cart.setQty(product.pk, next);
+  }
+  const newItem = Cart.get().find(i => i.pk === product.pk);
+  const newQty = newItem ? newItem.qty : 0;
+  document.getElementById('qtyLabel').textContent = newQty > 0 ? 'x'+newQty : '';
+  const cartBtn = document.getElementById('goCartBtn');
+  if (cartBtn) cartBtn.classList.toggle('d-none', newQty === 0);
+  updateCartBadge();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+/* ── Fonts & base ─────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body, .menu-block { background: #f1f1f1; font-family: "Didact Gothic", sans-serif; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────────── */
+.content-wrapper { min-height: 100vh; }
+
+/* ── Header carousel ─────────────────────────────────────────────────────────── */
+.header-carousel-item { height: 300px; object-fit: cover; filter: brightness(0.4); }
+
+/* ── Navbar ──────────────────────────────────────────────────────────────────── */
+.navbar-brand { font-weight: 700; font-size: 1.4rem; }
+.cart-lnk { position: relative; }
+.cart-badge {
+  position: absolute; top: 4px; right: -4px;
+  background: #dc3545;  
+  width: 10px; height: 10px; border-radius: 50%;
+  
+  pointer-events: none;
+}
+
+/* ── Product card ────────────────────────────────────────────────────────────── */
+.product-card {
+  width: 268px; min-height: 340px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,.07);
+}
+.product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.2); transform: scale(1.03); }
+.product-card-img-wrapper { min-height: 170px; background: rgba(0,0,0,.03); }
+.product-card-img { max-height: 168px; width: 100%; object-fit: contain; }
+
+/* ── Categories ──────────────────────────────────────────────────────────────── */
+.categories-block { min-width: 190px; }
+.btn-collapse-bg { --bs-btn-bg: #ffffff; position: relative; }
+.btn-collapse-bg::before {
+  content: '';
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center; background-size: 90%;
+  height: 100%; width: 20px; position: absolute; right: 0.5rem; top: 0;
+  transition: transform 0.2s;
+}
+.btn-collapse-bg.collapsed::before { transform: rotate(-90deg); }
+
+/* ── Fade-in ─────────────────────────────────────────────────────────────────── */
+.fade-block { animation: fadeIn .45s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── Product counter ─────────────────────────────────────────────────────────── */
+.product-counter-wrapper { border-radius: 0.5rem; overflow: hidden; }
+.product-counter { padding: 0.25rem 0.5rem; font-size: .9rem; white-space: nowrap; }
+
+/* ── About page ──────────────────────────────────────────────────────────────── */
+.about-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  border-radius: .75rem;
+}
+.about-card-wrapper { flex: 1 1 220px; max-width: 320px; }
+.about-card { border-radius: .75rem; min-height: 180px; }
+.about-message { border-radius: .5rem; }
+.about-feedback-btn { background: linear-gradient(90deg,#0d6efd,#0a58ca); border: none; }
+.about-feedback-btn:hover { background: linear-gradient(90deg,#0a58ca,#084298); }
+
+/* ── Misc ────────────────────────────────────────────────────────────────────── */
+.footer-block { background: #e9ecef; }
+
+/* ── Responsive tweaks ───────────────────────────────────────────────────────── */
+@media (max-width: 576px) {
+  .product-card { width: 160px; min-height: 260px; }
+  .product-card-img { max-height: 110px; }
+}
