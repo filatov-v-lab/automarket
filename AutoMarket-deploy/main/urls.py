@@ -1,5 +1,6 @@
 from django.urls import path
 from main import views
+from .views import seed_data
 
 app_name = 'main'
 
@@ -16,5 +17,10 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('signup/', views.signup, name='signup'),
     path('logout-store/', views.logot_store, name='logout-store'),
-    path('', views.store, name='home')
+    
+    
+    path('', views.store, name='home'),
+
+    
+    path('seed/', seed_data),
 ]

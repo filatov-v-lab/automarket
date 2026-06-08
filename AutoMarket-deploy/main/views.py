@@ -224,3 +224,10 @@ def logot_store(request):
         return redirect('/')
     logout(request)
     return redirect('/')
+
+import subprocess
+from django.http import HttpResponse
+
+def seed_data(request):
+    subprocess.run(["python", "seed.py"])
+    return HttpResponse("Демо-товары загружены")
