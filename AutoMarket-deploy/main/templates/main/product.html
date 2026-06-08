@@ -10,23 +10,21 @@
                 <div id="productsImages" class="carousel slide h-100" data-bs-ride="true">
                     <div class="carousel-indicators">
                         {% for i in images.count|make_range %}
-                            <button type="button" data-bs-target="#productsImages" data-bs-slide-to="{{ i }}" {% if i == 0 %}class="active" aria-current="true"{% endif %} aria-label="Slide 1"></button>
+                            <button type="button" data-bs-target="#productsImages" data-bs-slide-to="{{ i }}" {% if i == 0 %}class="active" aria-current="true"{% endif %}></button>
                         {% endfor %}
                     </div>
                     <div class="carousel-inner h-100 rounded-3 product-carousel">
                         {% for image in images %}
                         	<div class="carousel-item {% if image.pk == preview_pk %}active{% endif %}">
-                                <img src="{% static 'main/imgs' %}/{{ image.name }}" class="d-block mx-auto product-carousel-image pt-3" style="min-height: 230px;" alt="..." data-bs-interval="2500">
+                                <img src="{% static 'main/imgs' %}/{{ image.name }}" class="d-block mx-auto product-carousel-image pt-3" style="min-height: 230px;">
                             </div>
                         {% endfor %}
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#productsImages" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
+                    <span class="carousel-control-prev-icon"></span>
                     </button>
                     <button class="carousel-control-next" type="button" data-bs-target="#productsImages" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
+                    <span class="carousel-control-next-icon"></span>
                     </button>
                 </div>
             </div>
@@ -41,7 +39,13 @@
             </div>
             <div class="border-start ps-3 pb-3">
                 <div class="text-body-secondary">Описание</div>
-                <div class="">{{ product.description }}</div>
+                <div>
+                    {% if product.description %}
+                        {{ product.description }}
+                    {% else %}
+                        Нет описания
+                    {% endif %}
+                </div>
             </div>
             <div class="border-start ps-3 pb-3 mb-3">
                 <div class="text-body-secondary">В наличии</div>
@@ -55,7 +59,7 @@
             </div>
             <div class="mb-2 d-flex nowrap justify-content-between">
                 <button class="btn btn-warning cart-btn d-block col-4 rounded-5 rounded-end-0 py-3 fs-5 bg-minus-ico" type="button" data-related-price-block="price-{{ product.pk }}" data-action="subtraction"></button>
-                <button class="btn btn-warning d-block col-4 rounded-0 py-3 fs-5 opacity-100" disabled type="button">{{ product.price|floatformat:"2g" }} ₽ <span id="price-{{ product.pk }}" data-max-value="{{ product.quantity_value }}" class="fw-semibold" data-img-name="{{ product.get_preview.name }}" data-product-data="{{ product|model_obj_to_json }}"></span></button>
+                <button class="btn btn-warning d-block col-4 rounded-0 py-3 fs-5 opacity-100" disabled type="button">{{ product.price|floatformat:"2g" }} ₽ <span id="price-{{ product.pk }}" data-max-value="{{ product.quantity_value|default:0 }}" class="fw-semibold" data-img-name="{{ product.get_preview.name }}" data-product-data="{{ product|model_obj_to_json }}"></span></button>
                 <button class="btn btn-warning cart-btn d-block col-4 rounded-5 rounded-start-0 py-3 fs-5 bg-plus-ico" type="button" data-related-price-block="price-{{ product.pk }}" data-action="addition"></button>
             </div>
         </div>
@@ -81,13 +85,19 @@
             {% for product in recommendations %}
                 <div class="card border-0 product-card z-0 me-3" style="width: 250px">
                     <div class="p-1 pb-0 product-card-img-wrapper rounded-top-3">
-                        <a href="/product/{{ product.pk }}" class="text-decoration-none">
-                            <img src="/static/main/imgs/{{ product.get_preview.name }}" class="product-card-img d-block mx-auto" alt="">
+                        <a href="/product/{{ product.pk }}">
+                            <img src="/static/main/imgs/{{ product.get_preview.name }}" class="product-card-img d-block mx-auto">
                         </a>
                     </div>
                     <div class="card-body d-flex flex-column text-wrap">
-                        <h5 class="card-title"><a href="/product/{{ product.pk }}" class="text-decoration-none">{{ product.name }}</a></h5>
-                        <p class="card-text">В наличии {{ product.quantity_value|floatformat:0 }} {{ product.quantity_units }}</p>
+                        <h5 class="card-title"><a href="/product/{{ product.pk }}">{{ product.name }}</a></h5>
+                        <p class="card-text">
+                            {% if product.quantity_value %}
+                                В наличии {{ product.quantity_value|floatformat:0 }} {{ product.quantity_units|default:"шт." }}
+                            {% else %}
+                                Нет в наличии
+                            {% endif %}
+                        </p>
                         <p class="card-text">Цена {{ product.price|floatformat:"2g" }}</p>
                     </div>
                 </div>
@@ -102,31 +112,24 @@
     document.querySelectorAll('.cart-btn').forEach(el=>el.addEventListener('click', ()=>{
         const priceBlock = el.dataset.relatedPriceBlock ? document.querySelector(`#${el.dataset.relatedPriceBlock}`) : null
         if (!priceBlock) return
-        const maxValue = parseFloat(priceBlock.dataset.maxValue)
-        const currentValue = parseInt(priceBlock.dataset.currentValue)
+        const maxValue = parseFloat(priceBlock.dataset.maxValue || 0)
+        const currentValue = parseInt(priceBlock.dataset.currentValue || 0)
         const productData = JSON.parse(priceBlock.dataset.productData)
         productData.imageName = priceBlock.dataset.imgName
         if (el.dataset.action === 'addition' && maxValue > 0) {
-            if (priceBlock.dataset.currentValue) {
-                priceBlock.dataset.currentValue = currentValue < maxValue ? `${currentValue + 1}` : priceBlock.dataset.currentValue
-            } else {
-                priceBlock.dataset.currentValue = '1'
-            }
+            priceBlock.dataset.currentValue = `${currentValue + 1}`
             priceBlock.innerText = ` x${priceBlock.dataset.currentValue}`
             productData.quantity = parseInt(priceBlock.dataset.currentValue)
             addToCart(productData)
         } else if (el.dataset.action === 'subtraction') {
-            if (priceBlock.dataset.currentValue) {
-                priceBlock.dataset.currentValue = `${currentValue > 1 ? currentValue - 1 : ''}`
-            } else {
-                priceBlock.dataset.currentValue = ''
-            }
-            priceBlock.innerText = priceBlock.dataset.currentValue ? ` x${priceBlock.dataset.currentValue}` : ''
-
-            if (priceBlock.dataset.currentValue) {
+            if (currentValue > 1) {
+                priceBlock.dataset.currentValue = `${currentValue - 1}`
+                priceBlock.innerText = ` x${priceBlock.dataset.currentValue}`
                 productData.quantity = parseInt(priceBlock.dataset.currentValue)
                 addToCart(productData)
             } else {
+                priceBlock.dataset.currentValue = ''
+                priceBlock.innerText = ''
                 removeFromCart(productData.pk)
             }
         }
