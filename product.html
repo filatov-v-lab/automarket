@@ -51,12 +51,14 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="data.js"></script>
 <script>
+dataReady.then(() => {
 const pk = +new URLSearchParams(location.search).get('id');
 const product = PRODUCTS.find(p => p.pk === pk);
 
 if (!product) {
   document.getElementById('productWrap').innerHTML = `<div class="text-center py-5"><h3>Товар не найден</h3><a href="index.html" class="btn btn-primary mt-3">В магазин</a></div>`;
 } else {
+  _currentProduct = product;
   document.title = `АвтоМаркет — ${product.name}`;
 
   const recs = PRODUCTS.filter(p => p.cat === product.cat && p.pk !== product.pk).slice(0, 6);
@@ -112,9 +114,14 @@ if (!product) {
   </div>`;
 
   updateCartBadge();
-}
+  } // конец else
+}); // конец dataReady.then
+
+let _currentProduct = null; // для доступа из adjustQty
 
 function adjustQty(delta) {
+  const product = _currentProduct;
+  if (!product) return;
   const item = Cart.get().find(i => i.pk === product.pk);
   const cur = item ? item.qty : 0;
   const next = cur + delta;

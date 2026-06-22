@@ -59,12 +59,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="data.js"></script>
 <script>
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('username').value.trim();
   const p = document.getElementById('password').value;
   const err = document.getElementById('loginError');
   if (!u || !p) { err.classList.remove('d-none'); return; }
-  if (Auth.login(u, p)) {
+  const ok = await Auth.login(u, p);
+  if (ok) {
     location.href = 'index.html';
   } else {
     err.classList.remove('d-none');

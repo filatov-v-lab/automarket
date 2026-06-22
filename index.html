@@ -292,7 +292,8 @@ document.getElementById('sortSelect').addEventListener('change', e => { state.so
 
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function renderAll() { renderCategories(); renderProducts(); }
-renderAll();
+// Ждём загрузки товаров с API, потом рендерим
+dataReady.then(() => renderAll());
 </script>
 </body>
 </html>

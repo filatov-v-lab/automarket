@@ -75,7 +75,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="data.js"></script>
 <script>
-function doRegister() {
+async function doRegister() {
   const username  = document.getElementById('regUsername').value.trim();
   const email     = document.getElementById('regEmail').value.trim();
   const firstName = document.getElementById('regFirst').value.trim();
@@ -96,7 +96,7 @@ function doRegister() {
     err.textContent = 'Пароль должен содержать не менее 6 символов.';
     err.classList.remove('d-none'); return;
   }
-  const result = Auth.register({ username, email, firstName, lastName, password });
+  const result = await Auth.register({ username, email, firstName, lastName, password });
   if (result) {
     err.textContent = result;
     err.classList.remove('d-none'); return;
